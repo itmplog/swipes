@@ -189,10 +189,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public class ScanTask extends AsyncTask<String, Integer, String> {
-        private TextView v;
+        private View v;
+        int fls = 0;
+        int dirs = 0;
         ProgressDialog progressDialog;
 
-        public ScanTask(TextView view){
+        public ScanTask(View view){
             v = view;
         }
         @Override
@@ -205,20 +207,25 @@ public class MainActivity extends AppCompatActivity {
             progressDialog.setMax(100);
             // Log.d("pre", length + "");
             progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL); // 设置进度条风格
-            progressDialog.setIndeterminate(false); // set the indeterminate for true  cause it will be downloaded so soon
+            progressDialog.setIndeterminate(true); // set the indeterminate for true  cause it will be downloaded so soon
             progressDialog.show();
         }
 
         @Override
         protected void onPostExecute(String s) {
             progressDialog.dismiss();
+            String[] array = s.split("\n");
+            /*for(int i = 0; i < array.length; i++)
+            Log.v("scanarray", array[i]);
             if(s != null) {
                 v.append(s);
-                v.append("\n\n\n\n");
+               // v.append("\n\n\n\n");
                 Log.d("scan", s);
             }
             else
                 ;
+                */
+
         }
 
         @Override
@@ -233,11 +240,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            progressDialog.setProgress(values[0]);
+            //progressDialog.setProgress(values[0]);
+            progressDialog.setMessage("已扫描了" + values[0] + "音乐");
         }
         public int index_file(File file, String extension, int level){
-            int fls = 0;
-            int dirs = 0;
             if(file.isHidden()){;}
             // Log.d("scaned", file.getName().substring(file.getName().lastIndexOf(".")+1));
             if(file.isFile() && file.getName().substring(file.getName().lastIndexOf(".")+1).equals("mp3")){
@@ -248,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
                 //view.append(file.getAbsolutePath() + "\n");
                 //scaned = scaned + file.getAbsolutePath() + "\n";
                 tmp += file.getAbsolutePath() + "\n";
+                Log.v("scanprogs", fls + "");
                 publishProgress(fls);
                 return fls;
             }
