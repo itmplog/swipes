@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
 
                         TextView textView = (TextView) rootView.findViewById(R.id.section_label);
                         textView.setMovementMethod(LinkMovementMethod.getInstance());
-                        textView.setVisibility(View.GONE);
+                        //textView.setVisibility(View.GONE);
                         final ListView listView = (ListView)rootView.findViewById(R.id.listView);
 
                         new ScanTask(listView).execute();
@@ -299,10 +299,10 @@ public class MainActivity extends AppCompatActivity {
                 publishProgress(fls);
                 return fls;
             }
-            if(file.isDirectory()){
+            if(file.isDirectory() && file.exists()){
                 dirs++;
                 File[] files = file.listFiles();
-                if(level != 0){
+                if(level != 0 && files != null){
                     //System.out.println("├──" + file.getName());
                 }
             /*
