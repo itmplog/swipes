@@ -1,5 +1,8 @@
 package top.itmp.swpes;
 
+import android.os.AsyncTask;
+import android.os.Environment;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +21,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.TextView;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    private static String tmp = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,7 +142,28 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            switch (position) {
+                case 0:
+                return new Fragment() {
+                    @Nullable
+                    @Override
+                    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+                        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+                        TextView textView = (TextView) rootView.findViewById(R.id.section_label);
+                        ScanTask scanTask = new ScanTask(textView);
+                        scanTask.execute();
+                       // FileIndexer.index_file(textView, new File(Environment.getExternalStorageDirectory().toString()+"/BaiduNetdisk"), "mp3",0);
+                        return rootView;
+                    }
+                };
+                case 1:
+                case 2:
+                    return PlaceholderFragment.newInstance(position + 1);
+                default:
+                    return null;
+            }
+
         }
 
         @Override
@@ -155,5 +184,75 @@ public class MainActivity extends AppCompatActivity {
             }
             return null;
         }
+    }
+    public class ScanTask extends AsyncTask<String, Integer, String> {
+        private TextView v;
+        public ScanTask(TextView view){
+            v = view;
+        }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            if(s != null) {
+                v.append(s);
+                Log.d("scan", s);
+            }
+            else
+                ;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            File file = new File(Environment.getExternalStorageDirectory().toString());
+            int i = index_file( new File(Environment.getExternalStorageDirectory().toString()), "mp3", 0);
+            Log.d("scantmp", tmp + " " + i);
+
+            return tmp + "";
+
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            Log.d("scanfls", values + "");
+        }
+
+    }
+    public static int index_file(File file, String extension, int level){
+        int fls = 0;
+        int dirs = 0;
+        if(file.isHidden()){;}
+        // Log.d("scaned", file.getName().substring(file.getName().lastIndexOf(".")+1));
+        if(file.isFile() && file.getName().substring(file.getName().lastIndexOf(".")+1).equals("mp3")){
+            fls++;
+            //System.out.println("└──" + file.getName());
+            // Log.d("scaned", file.getName().substring(file.getName().lastIndexOf(".") + 1));
+            Log.d("scaned", file.getAbsolutePath());
+            //view.append(file.getAbsolutePath() + "\n");
+            //scaned = scaned + file.getAbsolutePath() + "\n";
+            tmp += file.getAbsolutePath() + "\n";
+            return fls;
+        }
+        if(file.isDirectory()){
+            dirs++;
+            File[] files = file.listFiles();
+            if(level != 0){
+                //System.out.println("├──" + file.getName());
+            }
+            /*
+            if(files.length > 0 && level >= levels ){
+                levels = level + 1;
+            }*/
+
+
+            for (int i = 0; i < files.length; i++){
+                index_file(files[i], extension, level + 1);
+            }
+        }
+        return fls;
     }
 }
