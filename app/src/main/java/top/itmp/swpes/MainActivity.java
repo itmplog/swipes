@@ -1,8 +1,11 @@
 package top.itmp.swpes;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -22,10 +25,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -168,12 +173,30 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
                         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+                        final String[] songs = tmp.split("\n");
 
                         TextView textView = (TextView) rootView.findViewById(R.id.section_label);
                         textView.setMovementMethod(LinkMovementMethod.getInstance());
                         //textView.setVisibility(View.GONE);
                         final ListView listView = (ListView)rootView.findViewById(R.id.listView);
 
+                        listView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                Snackbar.make(listView, songs[position], Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+                                Toast.makeText(getApplicationContext(), songs[position], Toast.LENGTH_SHORT).show();
+                                Intent it = new Intent(Intent.ACTION_VIEW);
+                                Uri uri = Uri.parse("file://" + songs[position]);
+                                it.setDataAndType(uri, "audio/mp3");
+                                startActivity(it);
+
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+
+                            }
+                        });
                         new ScanTask(listView).execute();
 
 
@@ -197,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
                 default:
                     return null;
             }
+
         }
 
 
@@ -255,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             progressDialog.dismiss();
-            String[] array = s.split("\n");
+            final String[] array = s.split("\n");
             /*for(int i = 0; i < array.length; i++)
             Log.v("scanarray", array[i]);
             if(s != null) {
