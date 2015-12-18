@@ -1,5 +1,6 @@
 package top.itmp.swpes;
 
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -13,6 +14,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -151,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
                         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
                         TextView textView = (TextView) rootView.findViewById(R.id.section_label);
+                        textView.setMovementMethod(LinkMovementMethod.getInstance());
                         ScanTask scanTask = new ScanTask(textView);
                         scanTask.execute();
                        // FileIndexer.index_file(textView, new File(Environment.getExternalStorageDirectory().toString()+"/BaiduNetdisk"), "mp3",0);
@@ -187,18 +190,31 @@ public class MainActivity extends AppCompatActivity {
     }
     public class ScanTask extends AsyncTask<String, Integer, String> {
         private TextView v;
+        ProgressDialog progressDialog;
+
         public ScanTask(TextView view){
             v = view;
         }
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            progressDialog = new ProgressDialog(MainActivity.this);
+            progressDialog.setTitle("扫描音乐文件中");
+            progressDialog.setMessage("正在扫描中, 请等待....");
+            progressDialog.setCancelable(false);
+            progressDialog.setMax(100);
+            // Log.d("pre", length + "");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL); // 设置进度条风格
+            progressDialog.setIndeterminate(false); // set the indeterminate for true  cause it will be downloaded so soon
+            progressDialog.show();
         }
 
         @Override
         protected void onPostExecute(String s) {
+            progressDialog.dismiss();
             if(s != null) {
                 v.append(s);
+                v.append("\n\n\n\n");
                 Log.d("scan", s);
             }
             else
@@ -210,7 +226,6 @@ public class MainActivity extends AppCompatActivity {
             File file = new File(Environment.getExternalStorageDirectory().toString());
             int i = index_file( new File(Environment.getExternalStorageDirectory().toString()), "mp3", 0);
             Log.d("scantmp", tmp + " " + i);
-
             return tmp + "";
 
         }
@@ -218,41 +233,43 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            Log.d("scanfls", values + "");
+            progressDialog.setProgress(values[0]);
         }
-
-    }
-    public static int index_file(File file, String extension, int level){
-        int fls = 0;
-        int dirs = 0;
-        if(file.isHidden()){;}
-        // Log.d("scaned", file.getName().substring(file.getName().lastIndexOf(".")+1));
-        if(file.isFile() && file.getName().substring(file.getName().lastIndexOf(".")+1).equals("mp3")){
-            fls++;
-            //System.out.println("└──" + file.getName());
-            // Log.d("scaned", file.getName().substring(file.getName().lastIndexOf(".") + 1));
-            Log.d("scaned", file.getAbsolutePath());
-            //view.append(file.getAbsolutePath() + "\n");
-            //scaned = scaned + file.getAbsolutePath() + "\n";
-            tmp += file.getAbsolutePath() + "\n";
-            return fls;
-        }
-        if(file.isDirectory()){
-            dirs++;
-            File[] files = file.listFiles();
-            if(level != 0){
-                //System.out.println("├──" + file.getName());
+        public int index_file(File file, String extension, int level){
+            int fls = 0;
+            int dirs = 0;
+            if(file.isHidden()){;}
+            // Log.d("scaned", file.getName().substring(file.getName().lastIndexOf(".")+1));
+            if(file.isFile() && file.getName().substring(file.getName().lastIndexOf(".")+1).equals("mp3")){
+                fls++;
+                //System.out.println("└──" + file.getName());
+                // Log.d("scaned", file.getName().substring(file.getName().lastIndexOf(".") + 1));
+                Log.d("scaned", file.getAbsolutePath());
+                //view.append(file.getAbsolutePath() + "\n");
+                //scaned = scaned + file.getAbsolutePath() + "\n";
+                tmp += file.getAbsolutePath() + "\n";
+                publishProgress(fls);
+                return fls;
             }
+            if(file.isDirectory()){
+                dirs++;
+                File[] files = file.listFiles();
+                if(level != 0){
+                    //System.out.println("├──" + file.getName());
+                }
             /*
             if(files.length > 0 && level >= levels ){
                 levels = level + 1;
             }*/
 
 
-            for (int i = 0; i < files.length; i++){
-                index_file(files[i], extension, level + 1);
+                for (int i = 0; i < files.length; i++){
+                    index_file(files[i], extension, level + 1);
+                }
             }
+            return fls;
         }
-        return fls;
+
     }
+
 }
