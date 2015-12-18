@@ -160,8 +160,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onCreate(@Nullable Bundle savedInstanceState) {
                         super.onCreate(savedInstanceState);
-                        new ScanTask().execute();
-
                     }
 
                     @Nullable
@@ -175,8 +173,8 @@ public class MainActivity extends AppCompatActivity {
                         textView.setVisibility(View.GONE);
                         final ListView listView = (ListView)rootView.findViewById(R.id.listView);
 
-                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1,getArray());
-                        listView.setAdapter(arrayAdapter);
+                        new ScanTask(listView).execute();
+
 
                         Button button = (Button)rootView.findViewById(R.id.button);
                         button.setOnClickListener(new View.OnClickListener() {
@@ -199,19 +197,7 @@ public class MainActivity extends AppCompatActivity {
                     return null;
             }
         }
-        public List<String> getArray(){
-            String[] array = tmp.split("\n");
-            List<String> list = Arrays.asList(array);
-            return list;
-            /*
-            ArrayList<String> list = new ArrayList<>();
-            list.add("180平米的房子");
-            list.add("一个勤劳漂亮的老婆");
-            list.add("一辆宝马");
-            list.add("一个强壮且永不生病的身体");
-            list.add("一个喜欢的事业");
-            return list;*/
-        }
+
 
         private List<String> getData(){
                 List<String> data = new ArrayList<String>();
@@ -241,14 +227,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public class ScanTask extends AsyncTask<String, Integer, String> {
-        private View v;
+        private ListView v;
         int fls = 0;
         int dirs = 0;
         ProgressDialog progressDialog;
 
         public ScanTask() {}
 
-        public ScanTask(View view){
+        public ScanTask(ListView view){
             v = view;
         }
         @Override
@@ -279,7 +265,8 @@ public class MainActivity extends AppCompatActivity {
             else
                 ;
                 */
-
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(v.getContext(),android.R.layout.simple_list_item_1,getArray());
+            v.setAdapter(arrayAdapter);
         }
 
         @Override
@@ -331,6 +318,12 @@ public class MainActivity extends AppCompatActivity {
             return fls;
         }
 
+
+        }
+    public List<String> getArray(){
+        String[] array = tmp.split("\n");
+        List<String> list = Arrays.asList(array);
+        return list;
     }
 
 }
