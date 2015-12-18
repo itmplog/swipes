@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
     private static String tmp = "";
+    private static String lists = "";
 
 
     @Override
@@ -294,7 +295,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("scaned", file.getAbsolutePath());
                 //view.append(file.getAbsolutePath() + "\n");
                 //scaned = scaned + file.getAbsolutePath() + "\n";
-                tmp += fls + "  " + file.getAbsolutePath() + "\n";
+                tmp += fls + "  " + file.getName() + "\n";
+                lists += file.getAbsolutePath() + "\n";
                 Log.v("scanprogs", fls + "");
                 publishProgress(fls);
                 return fls;
