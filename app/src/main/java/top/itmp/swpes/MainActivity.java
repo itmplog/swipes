@@ -22,9 +22,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.File;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-
+/*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-
+*/
     }
 
 
@@ -147,15 +155,39 @@ public class MainActivity extends AppCompatActivity {
             switch (position) {
                 case 0:
                 return new Fragment() {
+
+
+                    @Override
+                    public void onCreate(@Nullable Bundle savedInstanceState) {
+                        super.onCreate(savedInstanceState);
+                        new ScanTask().execute();
+
+                    }
+
                     @Nullable
+
                     @Override
                     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
                         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
                         TextView textView = (TextView) rootView.findViewById(R.id.section_label);
                         textView.setMovementMethod(LinkMovementMethod.getInstance());
-                        ScanTask scanTask = new ScanTask(textView);
-                        scanTask.execute();
+                        textView.setVisibility(View.GONE);
+                        final ListView listView = (ListView)rootView.findViewById(R.id.listView);
+
+                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1,getArray());
+                        listView.setAdapter(arrayAdapter);
+
+                        Button button = (Button)rootView.findViewById(R.id.button);
+                        button.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                ArrayAdapter newadapter = new ArrayAdapter(getActivity(), android.R.layout.simple_expandable_list_item_1, getArray());
+                                listView.setAdapter(newadapter);
+                            }
+                        });
+
+
                        // FileIndexer.index_file(textView, new File(Environment.getExternalStorageDirectory().toString()+"/BaiduNetdisk"), "mp3",0);
                         return rootView;
                     }
@@ -166,8 +198,28 @@ public class MainActivity extends AppCompatActivity {
                 default:
                     return null;
             }
-
         }
+        public List<String> getArray(){
+            String[] array = tmp.split("\n");
+            List<String> list = Arrays.asList(array);
+            return list;
+            /*
+            ArrayList<String> list = new ArrayList<>();
+            list.add("180平米的房子");
+            list.add("一个勤劳漂亮的老婆");
+            list.add("一辆宝马");
+            list.add("一个强壮且永不生病的身体");
+            list.add("一个喜欢的事业");
+            return list;*/
+        }
+
+        private List<String> getData(){
+                List<String> data = new ArrayList<String>();
+                for(int i = 0;i <20;i++) {
+                    data.add(i+"");
+                }
+            return data;
+            }
 
         @Override
         public int getCount() {
@@ -193,6 +245,8 @@ public class MainActivity extends AppCompatActivity {
         int fls = 0;
         int dirs = 0;
         ProgressDialog progressDialog;
+
+        public ScanTask() {}
 
         public ScanTask(View view){
             v = view;
@@ -253,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("scaned", file.getAbsolutePath());
                 //view.append(file.getAbsolutePath() + "\n");
                 //scaned = scaned + file.getAbsolutePath() + "\n";
-                tmp += file.getAbsolutePath() + "\n";
+                tmp += fls + "  " + file.getAbsolutePath() + "\n";
                 Log.v("scanprogs", fls + "");
                 publishProgress(fls);
                 return fls;
