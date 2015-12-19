@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private static String tmp = "";
     private static String lists = "";
+    private String[] songs = null;
 
 
     @Override
@@ -173,30 +174,24 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
                         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-                        final String[] songs = tmp.split("\n");
 
                         TextView textView = (TextView) rootView.findViewById(R.id.section_label);
                         textView.setMovementMethod(LinkMovementMethod.getInstance());
                         //textView.setVisibility(View.GONE);
                         final ListView listView = (ListView)rootView.findViewById(R.id.listView);
 
-                        listView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
-                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                 Snackbar.make(listView, songs[position], Snackbar.LENGTH_SHORT).setAction("Action", null).show();
                                 Toast.makeText(getApplicationContext(), songs[position], Toast.LENGTH_SHORT).show();
                                 Intent it = new Intent(Intent.ACTION_VIEW);
                                 Uri uri = Uri.parse("file://" + songs[position]);
                                 it.setDataAndType(uri, "audio/mp3");
                                 startActivity(it);
-
-                            }
-
-                            @Override
-                            public void onNothingSelected(AdapterView<?> parent) {
-
                             }
                         });
+
                         new ScanTask(listView).execute();
 
 
@@ -279,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             progressDialog.dismiss();
-            final String[] array = s.split("\n");
+            songs = s.split("\n");
             /*for(int i = 0; i < array.length; i++)
             Log.v("scanarray", array[i]);
             if(s != null) {
@@ -299,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
             File file = new File(Environment.getExternalStorageDirectory().toString());
             int i = index_file( new File(Environment.getExternalStorageDirectory().toString()), "mp3", 0);
             Log.d("scantmp", tmp + " " + i);
-            return tmp + "";
+            return lists + "";
 
         }
 
@@ -319,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("scaned", file.getAbsolutePath());
                 //view.append(file.getAbsolutePath() + "\n");
                 //scaned = scaned + file.getAbsolutePath() + "\n";
-                tmp += fls + "  " + file.getName() + "\n";
+                tmp += file.getName() + "\n";
                 lists += file.getAbsolutePath() + "\n";
                 Log.v("scanprogs", fls + "");
                 publishProgress(fls);
