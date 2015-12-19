@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
                         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                Snackbar.make(listView, songs[position], Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+                               // Snackbar.make(listView, songs[position], Snackbar.LENGTH_SHORT).setAction("Action", null).show();
                                 Toast.makeText(getApplicationContext(), songs[position], Toast.LENGTH_SHORT).show();
                                 Intent it = new Intent(Intent.ACTION_VIEW);
                                 Uri uri = Uri.parse("file://" + songs[position]);
